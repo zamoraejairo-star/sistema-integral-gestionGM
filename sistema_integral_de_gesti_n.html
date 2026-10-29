@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Integral de Gestión | MERCADÍAS · VET MI REBAÑO · ATHLETICX</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              mercadias: '#0284c7',   /* Sky Blue */
+              rebanio: '#059669',     /* Emerald Green */
+              athleticx: '#ea580c',   /* Energetic Orange/Amber */
+              navy: '#0f172a',
+              card: '#1e293b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos para impresión del desprendible */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+        background: #ffffff !important;
+        color: #000000 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col antialiased selection:bg-indigo-600 selection:text-white">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Barra Superior de Navegación y Filtro Global -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between py-3 gap-3">
+        <!-- Logotipo e Identidad -->
+        <div class="flex items-center gap-3 w-full md:w-auto justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-sky-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+              <i class="fa-solid fa-building-user text-xl"></i>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                Sistema Integral de Gestión
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">v2.4 Admin</span>
+              </h1>
+              <p class="text-xs text-slate-400">Oficina Administrativa Digital Unificada</p>
+            </div>
+          </div>
+
+          <!-- Selector móvil o estado -->
+          <div class="md:hidden">
+            <button onclick="toggleMobileMenu()" class="p-2 text-slate-400 hover:text-white focus:outline-none">
+              <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Selector Global de Empresa -->
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 hidden sm:inline-flex">
+            <i class="fa-solid fa-filter text-indigo-400"></i> Filtrar Empresa:
+          </span>
+          <div class="inline-flex rounded-xl p-1 bg-slate-950 border border-slate-800 shadow-inner w-full md:w-auto overflow-x-auto">
+            <button onclick="setCompanyFilter('TODAS')" id="filter-btn-TODAS" class="company-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-white bg-indigo-600 shadow">
+              Todas
+            </button>
+            <button onclick="setCompanyFilter('MERCADÍAS')" id="filter-btn-MERCADÍAS" class="company-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+              <span class="inline-block w-2 h-2 rounded-full bg-sky-400 mr-1.5"></span>MERCADÍAS
+            </button>
+            <button onclick="setCompanyFilter('VET MI REBAÑO')" id="filter-btn-VET MI REBAÑO" class="company-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5"></span>VET MI REBAÑO
+            </button>
+            <button onclick="setCompanyFilter('ATHLETICX')" id="filter-btn-ATHLETICX" class="company-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-400 hover:text-white">
+              <span class="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1.5"></span>ATHLETICX
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestañas de Módulos Operativos -->
+      <nav id="nav-menu" class="hidden md:flex border-t border-slate-800/80 -mb-px space-x-1 sm:space-x-4 overflow-x-auto py-2">
+        <button onclick="switchTab('dashboard')" class="tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-indigo-400 bg-indigo-500/10 border border-indigo-500/20" data-tab="dashboard">
+          <i class="fa-solid fa-chart-pie"></i> Resumen General
+        </button>
+        <button onclick="switchTab('empleados')" class="tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="empleados">
+          <i class="fa-solid fa-users"></i> Empleados y Devengados
+        </button>
+        <button onclick="switchTab('movimientos')" class="tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="movimientos">
+          <i class="fa-solid fa-receipt"></i> Anticipos y Novedades
+        </button>
+        <button onclick="switchTab('desprendibles')" class="tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="desprendibles">
+          <i class="fa-solid fa-file-invoice-dollar"></i> Desprendibles
+        </button>
+        <button onclick="switchTab('arqueos')" class="tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60" data-tab="arqueos">
+          <i class="fa-solid fa-cash-register"></i> Arqueo de Caja
+        </button>
+        <button onclick="switchTab('respaldo')" class="tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 ml-auto" data-tab="respaldo">
+          <i class="fa-solid fa-cloud-arrow-down"></i> Respaldo & Precauciones
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal de Vistas -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- AVISO DE ADVERTENCIA OPERATIVA CONFORME AL MANUAL -->
+    <div class="mb-6 p-4 rounded-xl bg-amber-950/40 border border-amber-600/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-200 text-xs shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="p-2 rounded-lg bg-amber-500/20 text-amber-400 shrink-0">
+          <i class="fa-solid fa-shield-halved text-lg"></i>
+        </div>
+        <div>
+          <strong class="font-semibold text-amber-300">Nota del Manual Operativo:</strong>
+          Los devengados y saldos son cálculos de control administrativo provisional. No constituyen liquidación legal definitiva con prestaciones ni aportes de ley.
+        </div>
+      </div>
+      <button onclick="switchTab('respaldo')" class="shrink-0 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-medium transition-all">
+        <i class="fa-solid fa-floppy-disk mr-1"></i> Respaldo Local Activo
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 1. MÓDULO: RESUMEN / DASHBOARD             -->
+    <!-- ========================================== -->
+    <section id="view-dashboard" class="view-panel space-y-6">
+      <!-- Estadísticas Principales -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 w-20 h-20 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Total Trabajadores</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="dash-total-emp" class="text-3xl font-extrabold text-white">0</span>
+            <span id="dash-emp-badge" class="text-xs px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-300">Filtro actual</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+            <i class="fa-solid fa-users text-slate-400"></i> En nómina administrativa
+          </p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl pointer-events-none"></div>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Devengado Estimado Acum.</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="dash-total-dev" class="text-2xl font-black text-emerald-400 font-mono">$0</span>
+            <span class="text-xs text-emerald-400 font-medium"><i class="fa-solid fa-arrow-trend-up"></i> Estimado</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">Calculado al corte actual del período</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 w-20 h-20 bg-amber-500/10 rounded-full blur-xl pointer-events-none"></div>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Anticipos & Descuentos</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="dash-total-ant" class="text-2xl font-black text-amber-400 font-mono">$0</span>
+            <span class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-hand-holding-dollar"></i> Entregado</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">Deducciones y adelantos registrados</p>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-sm relative overflow-hidden">
+          <div class="absolute -right-3 -top-3 w-20 h-20 bg-sky-500/10 rounded-full blur-xl pointer-events-none"></div>
+          <p class="text-xs uppercase font-semibold tracking-wider text-slate-400">Saldo Estimado Pendiente</p>
+          <div class="mt-2 flex items-baseline justify-between">
+            <span id="dash-total-saldo" class="text-2xl font-black text-sky-400 font-mono">$0</span>
+            <span class="text-xs text-sky-300 font-medium"><i class="fa-solid fa-wallet"></i> Por cancelar</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-2">Saldo neto acumulado al corte</p>
+        </div>
+      </div>
+
+      <!-- Resumen por Empresas (3 Tarjetas Corporativas) -->
+      <div>
+        <h2 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-briefcase text-indigo-400"></i> Estado Comparativo por Razón Social
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="company-summary-cards">
+          <!-- Dinámico: Tarjeta MERCADÍAS, VET MI REBAÑO, ATHLETICX -->
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas -->
+      <div class="bg-gradient-to-r from-slate-900 to-indigo-950/60 border border-indigo-900/30 rounded-2xl p-6">
+        <h3 class="text-sm font-bold text-white uppercase tracking-wider mb-3">Rutina Administrativa Rápida</h3>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="openEmployeeModal()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm transition-all shadow-md flex items-center gap-2">
+            <i class="fa-solid fa-user-plus"></i> Registrar Empleado
+          </button>
+          <button onclick="openMovementModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-medium text-sm transition-all flex items-center gap-2">
+            <i class="fa-solid fa-money-bill-transfer text-emerald-400"></i> Registrar Anticipo / Novedad
+          </button>
+          <button onclick="switchTab('arqueos')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-medium text-sm transition-all flex items-center gap-2">
+            <i class="fa-solid fa-calculator text-amber-400"></i> Realizar Arqueo de Caja
+          </button>
+          <button onclick="switchTab('desprendibles')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-medium text-sm transition-all flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-sky-400"></i> Generar Desprendible
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 2. MÓDULO: EMPLEADOS Y DEVENGADOS          -->
+    <!-- ========================================== -->
+    <section id="view-empleados" class="view-panel hidden space-y-6">
+      <!-- Barra de herramientas del módulo -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white">Nómina y Cálculo de Devengados</h2>
+          <p class="text-xs text-slate-400">Control de sueldos base, días computados y saldos estimados</p>
+        </div>
+        
+        <!-- Control de Simulación de Días de Corte -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+            <label for="global-cut-day" class="text-xs text-slate-400 font-medium">Día de corte simulación:</label>
+            <input type="number" id="global-cut-day" min="1" max="30" value="15" onchange="updateCutDay(this.value)" class="w-16 bg-slate-900 border border-slate-700 text-white text-center text-xs font-mono rounded-lg p-1 focus:ring-1 focus:ring-indigo-500 outline-none">
+            <span class="text-xs text-slate-500">/ 30 días</span>
+          </div>
+
+          <button onclick="openEmployeeModal()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all">
+            <i class="fa-solid fa-user-plus"></i> Nuevo Empleado
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Empleados y Devengados Estimados -->
+      <div class="bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase text-[11px] font-semibold border-b border-slate-800 tracking-wider">
+              <tr>
+                <th class="py-3.5 px-4">Trabajador / Documento</th>
+                <th class="py-3.5 px-4">Empresa</th>
+                <th class="py-3.5 px-4">Cargo / Modalidad</th>
+                <th class="py-3.5 px-4 text-right">Salario Mes</th>
+                <th class="py-3.5 px-4 text-center">Días Computados</th>
+                <th class="py-3.5 px-4 text-right">Devengado Estimado</th>
+                <th class="py-3.5 px-4 text-right">Anticipos/Deduc.</th>
+                <th class="py-3.5 px-4 text-right">Saldo Estimado</th>
+                <th class="py-3.5 px-4 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="employees-table-body" class="divide-y divide-slate-800/60">
+              <!-- Render dinámico -->
+            </tbody>
+          </table>
+        </div>
+        <div id="no-employees-msg" class="hidden p-8 text-center text-slate-500 text-xs">
+          No hay empleados registrados para la empresa seleccionada. Presiona "Nuevo Empleado" para comenzar.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. MÓDULO: NOVEDADES & MOVIMIENTOS         -->
+    <!-- ========================================== -->
+    <section id="view-movimientos" class="view-panel hidden space-y-6">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+        <div>
+          <h2 class="text-lg font-bold text-white">Registro de Movimientos Económicos</h2>
+          <p class="text-xs text-slate-400">Anticipos entregados, bonificaciones extraordinarias, descuentos y pagos</p>
+        </div>
+        <button onclick="openMovementModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all">
+          <i class="fa-solid fa-plus-circle"></i> Nuevo Movimiento
+        </button>
+      </div>
+
+      <!-- Historial de Movimientos -->
+      <div class="bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden shadow-sm">
+        <div class="p-3 bg-slate-950/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-medium text-slate-300">Historial completo de novedades</span>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-slate-500">Filtrar por tipo:</span>
+            <select id="movement-type-filter" onchange="renderMovementsTable()" class="bg-slate-900 border border-slate-700 text-slate-300 rounded-lg px-2 py-1 outline-none text-xs">
+              <option value="TODOS">Todos los tipos</option>
+              <option value="ANTICIPO">Anticipos</option>
+              <option value="DESCUENTO">Descuentos autorizados</option>
+              <option value="BONIFICACION">Bonificaciones</option>
+              <option value="PAGO">Pagos realizados</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-950/80 text-slate-400 uppercase text-[11px] font-semibold border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Fecha</th>
+                <th class="py-3 px-4">Trabajador</th>
+                <th class="py-3 px-4">Empresa</th>
+                <th class="py-3 px-4">Tipo Movimiento</th>
+                <th class="py-3 px-4">Detalle / Justificación</th>
+                <th class="py-3 px-4 text-right">Monto ($)</th>
+                <th class="py-3 px-4 text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="movements-table-body" class="divide-y divide-slate-800/60">
+              <!-- Render dinámico -->
+            </tbody>
+          </table>
+        </div>
+        <div id="no-movements-msg" class="hidden p-8 text-center text-slate-500 text-xs">
+          No hay movimientos económicos registrados aún.
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. MÓDULO: DESPRENDIBLES DE PAGO           -->
+    <!-- ========================================== -->
+    <section id="view-desprendibles" class="view-panel hidden space-y-6">
+      <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Generador de Desprendibles de Nómina</h2>
+          <p class="text-xs text-slate-400">Emite comprobantes claros para imprimir o exportar para cada trabajador</p>
+        </div>
+
+        <!-- Selector de Empleado para el Desprendible -->
+        <div class="flex flex-wrap items-center gap-3">
+          <select id="desprendible-emp-select" onchange="generateDesprendiblePreview()" class="bg-slate-950 border border-slate-700 text-white rounded-xl px-3 py-2 text-xs focus:ring-1 focus:ring-indigo-500 outline-none">
+            <!-- Dinámico -->
+          </select>
+
+          <button onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium border border-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-print"></i> Imprimir / PDF
+          </button>
+          <button onclick="downloadDesprendibleHTML()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-md">
+            <i class="fa-solid fa-download"></i> Descargar HTML
+          </button>
+        </div>
+      </div>
+
+      <!-- Vista previa del desprendible (Formato Hoja de Nómina Imprimible) -->
+      <div class="flex justify-center">
+        <div id="print-area" class="w-full max-w-3xl bg-white text-slate-900 p-8 rounded-2xl shadow-2xl border border-slate-200">
+          <div id="desprendible-content">
+            <!-- Se inyecta con renderDesprendible() -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 5. MÓDULO: ARQUEOS DE CAJA                 -->
+    <!-- ========================================== -->
+    <section id="view-arqueos" class="view-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario de Nuevo Arqueo -->
+        <div class="lg:col-span-1 bg-slate-900/90 rounded-2xl border border-slate-800 p-5 shadow-sm space-y-4">
+          <div class="border-b border-slate-800 pb-3">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-cash-register text-amber-400"></i> Registrar Arqueo de Caja
+            </h3>
+            <p class="text-xs text-slate-400">Verifica sobrantes o faltantes al cierre de turno</p>
+          </div>
+
+          <form id="form-arqueo" onsubmit="handleSaveArqueo(event)" class="space-y-3.5">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Empresa / Sede</label>
+              <select id="arq-empresa" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 outline-none">
+                <option value="MERCADÍAS">MERCADÍAS</option>
+                <option value="VET MI REBAÑO">VET MI REBAÑO</option>
+                <option value="ATHLETICX">ATHLETICX</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Fecha</label>
+                <input type="date" id="arq-fecha" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Turno / Responsable</label>
+                <input type="text" id="arq-responsable" placeholder="Ej: Cierre Tarde" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white outline-none">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Dinero Esperado en Sistema ($)</label>
+              <input type="number" id="arq-esperado" placeholder="Ej: 850000" min="0" step="100" oninput="calculateArqueoDiff()" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono text-white outline-none focus:border-indigo-500">
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs font-medium text-slate-300">Dinero Físico Contado ($)</label>
+                <button type="button" onclick="toggleDenominaciones()" class="text-[11px] text-indigo-400 hover:underline">
+                  <i class="fa-solid fa-coins"></i> Desglose de billetes
+                </button>
+              </div>
+              <input type="number" id="arq-contado" placeholder="Ej: 850000" min="0" step="100" oninput="calculateArqueoDiff()" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm font-mono text-white outline-none focus:border-indigo-500">
+            </div>
+
+            <!-- Calculadora rápida plegable de billetes colombianos -->
+            <div id="denominaciones-panel" class="hidden p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+              <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Conteo de Efectivo (COP)</span>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span class="text-[10px] text-slate-400">$100.000:</span>
+                  <input type="number" id="billete-100" min="0" value="0" oninput="sumDenominations()" class="w-full bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono">
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400">$50.000:</span>
+                  <input type="number" id="billete-50" min="0" value="0" oninput="sumDenominations()" class="w-full bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono">
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400">$20.000:</span>
+                  <input type="number" id="billete-20" min="0" value="0" oninput="sumDenominations()" class="w-full bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono">
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400">$10.000:</span>
+                  <input type="number" id="billete-10" min="0" value="0" oninput="sumDenominations()" class="w-full bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono">
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400">$5.000:</span>
+                  <input type="number" id="billete-5" min="0" value="0" oninput="sumDenominations()" class="w-full bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono">
+                </div>
+                <div>
+                  <span class="text-[10px] text-slate-400">Monedas / Otros:</span>
+                  <input type="number" id="billete-monedas" min="0" value="0" oninput="sumDenominations()" class="w-full bg-slate-900 border border-slate-800 rounded p-1 text-center font-mono">
+                </div>
+              </div>
+            </div>
+
+            <!-- Resultado de la diferencia -->
+            <div id="arq-resultado-box" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-center">
+              <span class="text-xs text-slate-400">Diferencia de Caja:</span>
+              <div id="arq-diff-badge" class="text-base font-bold font-mono mt-0.5 text-slate-300">
+                $0 (Exacto)
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Notas / Justificación</label>
+              <textarea id="arq-notas" rows="2" placeholder="Observaciones de descuadre o cierre..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white outline-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition-all shadow-md">
+              <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Registro de Arqueo
+            </button>
+          </form>
+        </div>
+
+        <!-- Historial de Arqueos Registrados -->
+        <div class="lg:col-span-2 bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden shadow-sm flex flex-col">
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left text-slate-400"></i> Historial de Arqueos de Caja
+            </h3>
+            <span class="text-xs text-slate-500">MERCADÍAS · VET MI REBAÑO · ATHLETICX</span>
+          </div>
+
+          <div class="overflow-x-auto flex-1">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-950/80 text-slate-400 uppercase text-[10px] font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="py-3 px-3">Fecha / Turno</th>
+                  <th class="py-3 px-3">Empresa</th>
+                  <th class="py-3 px-3 text-right">Esperado</th>
+                  <th class="py-3 px-3 text-right">Contado</th>
+                  <th class="py-3 px-3 text-right">Diferencia</th>
+                  <th class="py-3 px-3">Estado</th>
+                  <th class="py-3 px-3 text-center">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="arqueos-table-body" class="divide-y divide-slate-800/60">
+                <!-- Dinámico -->
+              </tbody>
+            </table>
+          </div>
+          <div id="no-arqueos-msg" class="hidden p-8 text-center text-slate-500 text-xs">
+            No se han registrado arqueos de caja aún.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 6. MÓDULO: RESPALDO Y PRECAUCIÓN OPERATIVA -->
+    <!-- ========================================== -->
+    <section id="view-respaldo" class="view-panel hidden space-y-6">
+      <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-6 max-w-3xl mx-auto space-y-6 shadow-xl">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-2xl shrink-0">
+            <i class="fa-solid fa-shield-virus"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-white">Módulo de Seguridad y Respaldo de Datos</h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Conforme a la regla del Manual Operativo: La información se resguarda en el navegador localmente. Para no perder datos al cambiar de máquina o navegador, realiza copias periódicas de seguridad.
+            </p>
+          </div>
+        </div>
+
+        <!-- Acciones de Descarga / Carga -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+              <i class="fa-solid fa-download"></i> Descargar Respaldo JSON
+            </h3>
+            <p class="text-xs text-slate-400">
+              Genera un archivo con todos los empleados, movimientos de las tres empresas y registros de arqueos.
+            </p>
+            <button onclick="downloadBackupJSON()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition-all shadow-md flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-export"></i> Descargar Archivo (.JSON)
+            </button>
+          </div>
+
+          <div class="p-5 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <h3 class="text-sm font-bold text-sky-400 flex items-center gap-2">
+              <i class="fa-solid fa-upload"></i> Restaurar Copia de Respaldo
+            </h3>
+            <p class="text-xs text-slate-400">
+              Carga un archivo de respaldo previo para restablecer o sincronizar la información en este equipo.
+            </p>
+            <label class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition-all border border-slate-700 flex items-center justify-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-file-import"></i> Seleccionar Archivo JSON
+              <input type="file" id="backup-file-input" accept=".json" class="hidden" onchange="restoreBackupJSON(event)">
+            </label>
+          </div>
+        </div>
+
+        <!-- Botón para recargar datos de demostración si se desea -->
+        <div class="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+          <span>¿Deseas restablecer los datos de ejemplo originales?</span>
+          <button onclick="resetToDemoData()" class="px-3 py-1.5 rounded-lg bg-red-950/40 text-red-400 border border-red-800/40 hover:bg-red-900/40 transition-all">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Cargar datos iniciales
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: REGISTRO / EDICIÓN DE EMPLEADO                    -->
+  <!-- ======================================================== -->
+  <div id="modal-employee" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="modal-emp-title" class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-indigo-400"></i> Registrar Nuevo Trabajador
+        </h3>
+        <button onclick="closeEmployeeModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="form-employee" onsubmit="handleSaveEmployee(event)" class="space-y-3.5">
+        <input type="hidden" id="emp-id">
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Empresa Perteneciente *</label>
+          <select id="emp-empresa" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 outline-none">
+            <option value="MERCADÍAS">MERCADÍAS</option>
+            <option value="VET MI REBAÑO">VET MI REBAÑO</option>
+            <option value="ATHLETICX">ATHLETICX</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Nombre Completo *</label>
+            <input type="text" id="emp-nombre" required placeholder="Ej: Carlos Andrés Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Documento / Cédula *</label>
+            <input type="text" id="emp-cedula" required placeholder="Ej: 1020304050" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Cargo o Puesto *</label>
+            <input type="text" id="emp-cargo" required placeholder="Ej: Auxiliar Operativo" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Salario Mensual ($) *</label>
+            <input type="number" id="emp-salario" required min="100000" step="1000" placeholder="Ej: 1500000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Período de Liquidación</label>
+            <select id="emp-periodo" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+              <option value="Quincenal">Quincenal (15 días)</option>
+              <option value="Mensual">Mensual (30 días)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Fecha Ingreso / Inicio Período</label>
+            <input type="date" id="emp-fecha-inicio" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeEmployeeModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700 transition-all">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md transition-all">
+            Guardar Trabajador
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: REGISTRO DE MOVIMIENTO / NOVEDAD                  -->
+  <!-- ======================================================== -->
+  <div id="modal-movement" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-receipt text-emerald-400"></i> Registrar Novedad Económica
+        </h3>
+        <button onclick="closeMovementModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="form-movement" onsubmit="handleSaveMovement(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Empleado Destinatario *</label>
+          <select id="mov-empleado-id" required onchange="onSelectMovementEmployee(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-indigo-500 outline-none">
+            <!-- Dinámico -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Tipo de Movimiento *</label>
+          <select id="mov-tipo" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+            <option value="ANTICIPO">Anticipo entregado (Resta al saldo)</option>
+            <option value="DESCUENTO">Descuento autorizado / Préstamo (Resta)</option>
+            <option value="BONIFICACION">Bonificación / Auxilio (Suma)</option>
+            <option value="PAGO">Pago formal de nómina / liquidación</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Valor / Monto ($) *</label>
+            <input type="number" id="mov-monto" required min="1000" step="500" placeholder="Ej: 100000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Fecha del Movimiento</label>
+            <input type="date" id="mov-fecha" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Detalle u Observación</label>
+          <input type="text" id="mov-detalle" placeholder="Ej: Anticipo primera quincena en efectivo" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeMovementModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-medium hover:bg-slate-700 transition-all">
+            Cancelar
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md transition-all">
+            Guardar Movimiento
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pie de Página -->
+  <footer class="bg-slate-950 border-t border-slate-900 py-4 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>Sistema Integral de Gestión &copy; MERCADÍAS · VET MI REBAÑO · ATHLETICX</p>
+      <p class="text-[11px] text-slate-600">Almacenamiento Local Seguro en Navegador</p>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- LÓGICA JAVASCRIPT DEL SISTEMA INTEGRAL                  -->
+  <!-- ======================================================== -->
+  <script>
+    /* ---------------------------------------------------------
+     * ESTRUCTURA DE DATOS Y ESTADO GLOBAL
+     * --------------------------------------------------------- */
+    const STORAGE_KEY = 'SIG_ADMIN_DATA_V1';
+
+    let currentCompanyFilter = 'TODAS'; // 'TODAS' | 'MERCADÍAS' | 'VET MI REBAÑO' | 'ATHLETICX'
+    let currentCutDay = 15; // Día de simulación de corte por defecto (ej. día 15 de 30 días)
+
+    let state = {
+      employees: [],
+      movements: [],
+      arqueos: []
+    };
+
+    // Datos iniciales de demostración basados en las directrices del manual
+    const defaultData = {
+      employees: [
+        {
+          id: 'emp-1',
+          nombre: 'Juan Pablo Martínez',
+          cedula: '1023456789',
+          empresa: 'MERCADÍAS',
+          cargo: 'Administrador de Local',
+          salario: 1500000,
+          periodo: 'Quincenal',
+          fechaInicio: '2026-03-01',
+          activo: true
+        },
+        {
+          id: 'emp-2',
+          nombre: 'Diana Marcela Gómez',
+          cedula: '1098765432',
+          empresa: 'VET MI REBAÑO',
+          cargo: 'Médica Veterinaria Asistente',
+          salario: 1800000,
+          periodo: 'Quincenal',
+          fechaInicio: '2026-03-01',
+          activo: true
+        },
+        {
+          id: 'emp-3',
+          nombre: 'Sebastián Restrepo',
+          cedula: '1017892345',
+          empresa: 'ATHLETICX',
+          cargo: 'Entrenador Personal / Monitor',
+          salario: 1400000,
+          periodo: 'Mensual',
+          fechaInicio: '2026-03-01',
+          activo: true
+        }
+      ],
+      movements: [
+        {
+          id: 'mov-1',
+          empleadoId: 'emp-1',
+          empresa: 'MERCADÍAS',
+          tipo: 'ANTICIPO',
+          monto: 100000,
+          fecha: '2026-03-10',
+          detalle: 'Anticipo quincenal entregado en efectivo'
+        },
+        {
+          id: 'mov-2',
+          empleadoId: 'emp-1',
+          empresa: 'MERCADÍAS',
+          tipo: 'DESCUENTO',
+          monto: 30000,
+          fecha: '2026-03-12',
+          detalle: 'Otro descuento autorizado'
+        },
+        {
+          id: 'mov-3',
+          empleadoId: 'emp-2',
+          empresa: 'VET MI REBAÑO',
+          tipo: 'ANTICIPO',
+          monto: 150000,
+          fecha: '2026-03-11',
+          detalle: 'Anticipo quincenal autorizado'
+        }
+      ],
+      arqueos: [
+        {
+          id: 'arq-1',
+          empresa: 'MERCADÍAS',
+          fecha: '2026-03-14',
+          responsable: 'Cierre Noche - Turno Principal',
+          esperado: 850000,
+          contado: 850000,
+          diferencia: 0,
+          notas: 'Cuadre perfecto al cierre'
+        }
+      ]
+    };
+
+    /* ---------------------------------------------------------
+     * PERSISTENCIA Y CARGA
+     * --------------------------------------------------------- */
+    function loadState() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          state = JSON.parse(stored);
+        } else {
+          state = JSON.parse(JSON.stringify(defaultData));
+          saveState();
+        }
+      } catch (e) {
+        console.error('Error al leer de localStorage:', e);
+        state = JSON.parse(JSON.stringify(defaultData));
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        showToast('Error al persistir datos en almacenamiento local', 'error');
+      }
+    }
+
+    /* ---------------------------------------------------------
+     * UTILIDADES DE FORMATO Y CÁLCULO
+     * --------------------------------------------------------- */
+    function formatMoney(amount) {
+      return '$' + Math.round(amount || 0).toLocaleString('es-CO');
+    }
+
+    function getCompanyBadgeColor(empresa) {
+      switch (empresa) {
+        case 'MERCADÍAS':
+          return 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+        case 'VET MI REBAÑO':
+          return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        case 'ATHLETICX':
+          return 'bg-orange-500/10 text-orange-400 border-orange-500/20';
+        default:
+          return 'bg-slate-700 text-slate-300 border-slate-600';
+      }
+    }
+
+    function calculateEmployeeMetrics(emp, cutDay) {
+      // Regla de cálculo estricta al manual:
+      // Salario mensual base 30 días -> Devengado Estimado = (Salario / 30) * cutDay
+      const days = Math.min(Math.max(cutDay, 1), 30);
+      const devengadoEstimado = Math.round((emp.salario / 30) * days);
+
+      // Movimientos asociados al trabajador
+      const empMovements = state.movements.filter(m => m.empleadoId === emp.id);
+
+      let anticipos = 0;
+      let descuentos = 0;
+      let bonificaciones = 0;
+      let pagos = 0;
+
+      empMovements.forEach(m => {
+        const val = Number(m.monto) || 0;
+        if (m.tipo === 'ANTICIPO') anticipos += val;
+        else if (m.tipo === 'DESCUENTO') descuentos += val;
+        else if (m.tipo === 'BONIFICACION') bonificaciones += val;
+        else if (m.tipo === 'PAGO') pagos += val;
+      });
+
+      const totalDeducciones = anticipos + descuentos;
+      const saldoEstimado = devengadoEstimado + bonificaciones - totalDeducciones - pagos;
+
+      return {
+        days,
+        devengadoEstimado,
+        anticipos,
+        descuentos,
+        bonificaciones,
+        pagos,
+        totalDeducciones,
+        saldoEstimado
+      };
+    }
+
+    /* ---------------------------------------------------------
+     * FILTROS GLOBALES Y NAVEGACIÓN
+     * --------------------------------------------------------- */
+    function setCompanyFilter(empresa) {
+      currentCompanyFilter = empresa;
+
+      // Actualizar estilos botones filtro
+      document.querySelectorAll('.company-tab-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white', 'shadow');
+        btn.classList.add('text-slate-400');
+      });
+
+      const activeBtn = document.getElementById(`filter-btn-${empresa}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow');
+      }
+
+      // Re-renderizar módulos
+      renderAll();
+      showToast(`Filtrando por: ${empresa}`, 'info');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`view-${tabId}`);
+      if (target) {
+        target.classList.remove('hidden');
+      }
+
+      // Estilos pestaña
+      document.querySelectorAll('.tab-link').forEach(link => {
+        if (link.getAttribute('data-tab') === tabId) {
+          link.className = 'tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-indigo-400 bg-indigo-500/10 border border-indigo-500/20';
+        } else {
+          link.className = 'tab-link px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60';
+        }
+      });
+
+      if (tabId === 'desprendibles') {
+        populateDesprendibleSelect();
+        generateDesprendiblePreview();
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('nav-menu');
+      menu.classList.toggle('hidden');
+      menu.classList.toggle('flex');
+      menu.classList.toggle('flex-col');
+    }
+
+    function updateCutDay(val) {
+      let num = parseInt(val, 10);
+      if (isNaN(num) || num < 1) num = 1;
+      if (num > 30) num = 30;
+      currentCutDay = num;
+      document.getElementById('global-cut-day').value = num;
+      renderAll();
+    }
+
+    /* ---------------------------------------------------------
+     * RENDERING Y CONTROLADORES DE INTERFAZ
+     * --------------------------------------------------------- */
+    function getFilteredEmployees() {
+      if (currentCompanyFilter === 'TODAS') {
+        return state.employees;
+      }
+      return state.employees.filter(e => e.empresa === currentCompanyFilter);
+    }
+
+    function renderDashboard() {
+      const filtered = getFilteredEmployees();
+      document.getElementById('dash-total-emp').textContent = filtered.length;
+      document.getElementById('dash-emp-badge').textContent = currentCompanyFilter;
+
+      let totalDev = 0;
+      let totalAnt = 0;
+      let totalSaldo = 0;
+
+      filtered.forEach(emp => {
+        const metrics = calculateEmployeeMetrics(emp, currentCutDay);
+        totalDev += metrics.devengadoEstimado;
+        totalAnt += metrics.totalDeducciones;
+        totalSaldo += metrics.saldoEstimado;
+      });
+
+      document.getElementById('dash-total-dev').textContent = formatMoney(totalDev);
+      document.getElementById('dash-total-ant').textContent = formatMoney(totalAnt);
+      document.getElementById('dash-total-saldo').textContent = formatMoney(totalSaldo);
+
+      // Tarjetas de las 3 Empresas fijas
+      const companies = ['MERCADÍAS', 'VET MI REBAÑO', 'ATHLETICX'];
+      const compContainer = document.getElementById('company-summary-cards');
+      compContainer.innerHTML = '';
+
+      companies.forEach(comp => {
+        const compEmployees = state.employees.filter(e => e.empresa === comp);
+        let cDev = 0, cSal = 0, cDeduc = 0;
+        compEmployees.forEach(e => {
+          const m = calculateEmployeeMetrics(e, currentCutDay);
+          cDev += m.devengadoEstimado;
+          cDeduc += m.totalDeducciones;
+          cSal += m.saldoEstimado;
+        });
+
+        let accentClass = comp === 'MERCADÍAS' ? 'border-sky-500/30' : (comp === 'VET MI REBAÑO' ? 'border-emerald-500/30' : 'border-orange-500/30');
+        let dotColor = comp === 'MERCADÍAS' ? 'bg-sky-400' : (comp === 'VET MI REBAÑO' ? 'bg-emerald-400' : 'bg-orange-400');
+
+        const card = document.createElement('div');
+        card.className = `p-4 rounded-xl bg-slate-900 border ${accentClass} space-y-2 hover:bg-slate-900/80 transition-all`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${dotColor}"></span> ${comp}
+            </span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">${compEmployees.length} emp.</span>
+          </div>
+          <div class="pt-2 grid grid-cols-2 gap-2 text-xs border-t border-slate-800/80">
+            <div>
+              <span class="text-slate-500 block text-[10px]">Devengado Estimado</span>
+              <span class="font-bold text-slate-200 font-mono">${formatMoney(cDev)}</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px]">Saldo Pendiente</span>
+              <span class="font-bold text-indigo-400 font-mono">${formatMoney(cSal)}</span>
+            </div>
+          </div>
+        `;
+        compContainer.appendChild(card);
+      });
+    }
+
+    function renderEmployeesTable() {
+      const tbody = document.getElementById('employees-table-body');
+      const emptyMsg = document.getElementById('no-employees-msg');
+      const filtered = getFilteredEmployees();
+
+      tbody.innerHTML = '';
+      if (filtered.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      filtered.forEach(emp => {
+        const metrics = calculateEmployeeMetrics(emp, currentCutDay);
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition-colors border-b border-slate-800/40';
+
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            <div class="font-semibold text-white">${emp.nombre}</div>
+            <div class="text-[11px] text-slate-400 font-mono">C.C. ${emp.cedula}</div>
+          </td>
+          <td class="py-3 px-4">
+            <span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${getCompanyBadgeColor(emp.empresa)}">
+              ${emp.empresa}
+            </span>
+          </td>
+          <td class="py-3 px-4">
+            <div class="text-slate-200">${emp.cargo}</div>
+            <div class="text-[10px] text-slate-500">${emp.periodo}</div>
+          </td>
+          <td class="py-3 px-4 text-right font-mono text-slate-300">
+            ${formatMoney(emp.salario)}
+          </td>
+          <td class="py-3 px-4 text-center">
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+              <i class="fa-regular fa-calendar-check text-[10px]"></i> ${metrics.days} / 30 d
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400">
+            ${formatMoney(metrics.devengadoEstimado)}
+          </td>
+          <td class="py-3 px-4 text-right font-mono text-amber-400">
+            -${formatMoney(metrics.totalDeducciones)}
+          </td>
+          <td class="py-3 px-4 text-right font-mono font-bold text-sky-400 bg-sky-950/20">
+            ${formatMoney(metrics.saldoEstimado)}
+          </td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex items-center justify-center gap-1">
+              <button onclick="openMovementModalForEmp('${emp.id}')" title="Registrar anticipo o novedad" class="p-1.5 rounded-lg bg-slate-800 text-amber-400 hover:bg-slate-700">
+                <i class="fa-solid fa-plus-minus text-xs"></i>
+              </button>
+              <button onclick="goToDesprendible('${emp.id}')" title="Ver comprobante" class="p-1.5 rounded-lg bg-slate-800 text-sky-400 hover:bg-slate-700">
+                <i class="fa-solid fa-file-invoice text-xs"></i>
+              </button>
+              <button onclick="deleteEmployee('${emp.id}')" title="Eliminar registro" class="p-1.5 rounded-lg bg-slate-800 text-red-400 hover:bg-slate-700">
+                <i class="fa-solid fa-trash text-xs"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMovementsTable() {
+      const tbody = document.getElementById('movements-table-body');
+      const emptyMsg = document.getElementById('no-movements-msg');
+      const typeFilter = document.getElementById('movement-type-filter').value;
+
+      let movements = state.movements;
+
+      // Filtrar por empresa
+      if (currentCompanyFilter !== 'TODAS') {
+        movements = movements.filter(m => m.empresa === currentCompanyFilter);
+      }
+
+      // Filtrar por tipo
+      if (typeFilter !== 'TODOS') {
+        movements = movements.filter(m => m.tipo === typeFilter);
+      }
+
+      tbody.innerHTML = '';
+      if (movements.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      // Ordenar por fecha descendente
+      const sorted = [...movements].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      sorted.forEach(m => {
+        const emp = state.employees.find(e => e.id === m.empleadoId);
+        const empNombre = emp ? emp.nombre : 'Empleado no encontrado';
+
+        let badgeStyle = 'bg-slate-700 text-slate-300';
+        let prefix = '-';
+        let amountColor = 'text-amber-400';
+
+        if (m.tipo === 'ANTICIPO') {
+          badgeStyle = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
+          prefix = '- ';
+        } else if (m.tipo === 'DESCUENTO') {
+          badgeStyle = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
+          prefix = '- ';
+        } else if (m.tipo === 'BONIFICACION') {
+          badgeStyle = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+          prefix = '+ ';
+          amountColor = 'text-emerald-400';
+        } else if (m.tipo === 'PAGO') {
+          badgeStyle = 'bg-sky-500/20 text-sky-300 border border-sky-500/30';
+          prefix = '- ';
+          amountColor = 'text-sky-300';
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition-colors border-b border-slate-800/40';
+        tr.innerHTML = `
+          <td class="py-3 px-4 text-slate-300 font-mono text-xs">${m.fecha}</td>
+          <td class="py-3 px-4 font-medium text-white">${empNombre}</td>
+          <td class="py-3 px-4">
+            <span class="text-[11px] px-2 py-0.5 rounded-md border ${getCompanyBadgeColor(m.empresa)}">${m.empresa}</span>
+          </td>
+          <td class="py-3 px-4">
+            <span class="text-[11px] px-2 py-0.5 rounded-md font-semibold ${badgeStyle}">${m.tipo}</span>
+          </td>
+          <td class="py-3 px-4 text-slate-300 text-xs">${m.detalle || 'Sin observaciones'}</td>
+          <td class="py-3 px-4 text-right font-mono font-bold ${amountColor}">
+            ${prefix}${formatMoney(m.monto)}
+          </td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="deleteMovement('${m.id}')" class="p-1 rounded text-slate-500 hover:text-red-400">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderArqueosTable() {
+      const tbody = document.getElementById('arqueos-table-body');
+      const emptyMsg = document.getElementById('no-arqueos-msg');
+
+      let list = state.arqueos;
+      if (currentCompanyFilter !== 'TODAS') {
+        list = list.filter(a => a.empresa === currentCompanyFilter);
+      }
+
+      tbody.innerHTML = '';
+      if (list.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      const sorted = [...list].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      sorted.forEach(a => {
+        let diffColor = 'text-slate-300';
+        let statusBadge = '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Exacta</span>';
+
+        if (a.diferencia > 0) {
+          diffColor = 'text-emerald-400';
+          statusBadge = '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Sobrante +' + formatMoney(a.diferencia) + '</span>';
+        } else if (a.diferencia < 0) {
+          diffColor = 'text-rose-400';
+          statusBadge = '<span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-bold">Faltante ' + formatMoney(a.diferencia) + '</span>';
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 border-b border-slate-800/40';
+        tr.innerHTML = `
+          <td class="py-2.5 px-3">
+            <div class="font-mono text-white text-xs">${a.fecha}</div>
+            <div class="text-[10px] text-slate-400">${a.responsable}</div>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="text-[10px] px-2 py-0.5 rounded border ${getCompanyBadgeColor(a.empresa)}">${a.empresa}</span>
+          </td>
+          <td class="py-2.5 px-3 text-right font-mono text-slate-300">${formatMoney(a.esperado)}</td>
+          <td class="py-2.5 px-3 text-right font-mono text-slate-200 font-bold">${formatMoney(a.contado)}</td>
+          <td class="py-2.5 px-3 text-right font-mono font-bold ${diffColor}">
+            ${a.diferencia > 0 ? '+' : ''}${formatMoney(a.diferencia)}
+          </td>
+          <td class="py-2.5 px-3">${statusBadge}</td>
+          <td class="py-2.5 px-3 text-center">
+            <button onclick="deleteArqueo('${a.id}')" class="text-slate-500 hover:text-red-400 p-1">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderEmployeesTable();
+      renderMovementsTable();
+      renderArqueosTable();
+      populateDesprendibleSelect();
+      updateMovementEmployeeSelect();
+    }
+
+    /* ---------------------------------------------------------
+     * DESPRENDIBLES DE PAGO (IMPRIMIBLE / DESCARGABLE)
+     * --------------------------------------------------------- */
+    function populateDesprendibleSelect() {
+      const select = document.getElementById('desprendible-emp-select');
+      const filtered = getFilteredEmployees();
+      const currentVal = select.value;
+
+      select.innerHTML = '';
+      if (filtered.length === 0) {
+        select.innerHTML = '<option value="">No hay empleados</option>';
+        return;
+      }
+
+      filtered.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = `${emp.nombre} (${emp.empresa})`;
+        if (emp.id === currentVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function goToDesprendible(empId) {
+      switchTab('desprendibles');
+      const select = document.getElementById('desprendible-emp-select');
+      select.value = empId;
+      generateDesprendiblePreview();
+    }
+
+    function generateDesprendiblePreview() {
+      const select = document.getElementById('desprendible-emp-select');
+      const empId = select.value;
+      const container = document.getElementById('desprendible-content');
+
+      if (!empId) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400">Selecciona un empleado para emitir el comprobante.</div>`;
+        return;
+      }
+
+      const emp = state.employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      const metrics = calculateEmployeeMetrics(emp, currentCutDay);
+      const empMovements = state.movements.filter(m => m.empleadoId === emp.id);
+
+      // Colores corporativos según la empresa para el encabezado
+      let colorHeader = 'bg-slate-900 text-white';
+      let accentTextColor = 'text-indigo-600';
+      if (emp.empresa === 'MERCADÍAS') {
+        colorHeader = 'bg-sky-800 text-white';
+        accentTextColor = 'text-sky-700';
+      } else if (emp.empresa === 'VET MI REBAÑO') {
+        colorHeader = 'bg-emerald-800 text-white';
+        accentTextColor = 'text-emerald-700';
+      } else if (emp.empresa === 'ATHLETICX') {
+        colorHeader = 'bg-orange-800 text-white';
+        accentTextColor = 'text-orange-700';
+      }
+
+      // Detalle de movimientos
+      let movementsHTML = '';
+      if (empMovements.length > 0) {
+        movementsHTML = empMovements.map(m => `
+          <tr class="border-b border-slate-100 text-xs">
+            <td class="py-2 px-3 text-slate-600">${m.fecha}</td>
+            <td class="py-2 px-3 font-medium text-slate-800">${m.tipo} - ${m.detalle || ''}</td>
+            <td class="py-2 px-3 text-right font-mono ${m.tipo === 'BONIFICACION' ? 'text-emerald-700' : 'text-rose-700'}">
+              ${m.tipo === 'BONIFICACION' ? '+' : '-'}${formatMoney(m.monto)}
+            </td>
+          </tr>
+        `).join('');
+      } else {
+        movementsHTML = `<tr><td colspan="3" class="py-2 px-3 text-center text-xs text-slate-400 italic">No registra anticipos ni descuentos en este período.</td></tr>`;
+      }
+
+      const today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      container.innerHTML = `
+        <div class="border border-slate-200 rounded-xl overflow-hidden text-slate-800">
+          <!-- Encabezado Membrete -->
+          <div class="${colorHeader} p-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <span class="text-xs uppercase tracking-widest text-slate-200 font-semibold">Comprobante Administrativo de Nómina</span>
+                <h1 class="text-2xl font-black uppercase tracking-tight">${emp.empresa}</h1>
+                <p class="text-xs text-slate-200 mt-0.5">Sistema Integral de Gestión Operativa</p>
+              </div>
+              <div class="text-left sm:text-right text-xs text-slate-200">
+                <p><strong>Fecha de Emisión:</strong> ${today}</p>
+                <p><strong>Días Computados:</strong> ${metrics.days} de 30 días</p>
+                <p><strong>Modalidad:</strong> ${emp.periodo}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Datos del Trabajador -->
+          <div class="bg-slate-50 p-4 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div>
+              <span class="text-slate-500 block text-[10px] uppercase font-bold">Colaborador</span>
+              <strong class="text-slate-900 text-sm font-semibold">${emp.nombre}</strong>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px] uppercase font-bold">Cédula de Ciudadanía</span>
+              <span class="font-mono text-slate-800">${emp.cedula}</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px] uppercase font-bold">Cargo Desempeñado</span>
+              <span class="text-slate-800">${emp.cargo}</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px] uppercase font-bold">Salario Mensual Base</span>
+              <span class="font-mono font-bold text-slate-900">${formatMoney(emp.salario)}</span>
+            </div>
+          </div>
+
+          <!-- Liquidación Administrativa Estimada -->
+          <div class="p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Devengado -->
+              <div class="border border-slate-200 rounded-lg p-3 bg-white">
+                <div class="flex justify-between items-center text-xs pb-2 border-b border-slate-100">
+                  <span class="font-bold uppercase text-slate-700">1. Devengado Estimado (${metrics.days} días)</span>
+                  <span class="font-mono font-bold text-slate-900">${formatMoney(metrics.devengadoEstimado)}</span>
+                </div>
+                ${metrics.bonificaciones > 0 ? `
+                <div class="flex justify-between items-center text-xs pt-2 text-emerald-700">
+                  <span>Bonificaciones extraordinarias:</span>
+                  <span class="font-mono">+${formatMoney(metrics.bonificaciones)}</span>
+                </div>` : ''}
+              </div>
+
+              <!-- Deducciones -->
+              <div class="border border-slate-200 rounded-lg p-3 bg-white">
+                <div class="flex justify-between items-center text-xs pb-2 border-b border-slate-100">
+                  <span class="font-bold uppercase text-slate-700">2. Deducciones Registradas</span>
+                  <span class="font-mono font-bold text-rose-700">-${formatMoney(metrics.totalDeducciones)}</span>
+                </div>
+                <div class="flex justify-between items-center text-[11px] pt-1 text-slate-500">
+                  <span>Anticipos: -${formatMoney(metrics.anticipos)}</span>
+                  <span>Descuentos: -${formatMoney(metrics.descuentos)}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla de Novedades del Trabajador -->
+            <div>
+              <h4 class="text-xs font-bold uppercase text-slate-700 mb-2">Desglose de Anticipos y Descuentos Asociados:</h4>
+              <div class="border border-slate-200 rounded-lg overflow-hidden">
+                <table class="w-full text-left">
+                  <thead class="bg-slate-100 text-slate-600 text-[10px] uppercase font-bold">
+                    <tr>
+                      <th class="py-2 px-3">Fecha</th>
+                      <th class="py-2 px-3">Concepto / Detalle</th>
+                      <th class="py-2 px-3 text-right">Monto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${movementsHTML}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Total Neto Estimado -->
+            <div class="p-4 rounded-xl bg-slate-100 border border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div>
+                <span class="text-xs uppercase font-bold text-slate-500 tracking-wider">Saldo Neto Estimado a Cancelar:</span>
+                <p class="text-[11px] text-slate-500">Corte ilustrativo día ${metrics.days} de un mes de 30 días.</p>
+              </div>
+              <div class="text-2xl font-black font-mono ${accentTextColor}">
+                ${formatMoney(metrics.saldoEstimado)}
+              </div>
+            </div>
+
+            <!-- Nota legal del manual -->
+            <div class="text-[10px] text-slate-500 leading-tight border-t border-slate-200 pt-3">
+              <strong>Aclaración:</strong> Valores exclusivamente de control administrativo interno. No constituyen liquidación legal definitiva con prestaciones sociales (cesantías, primas, intereses), auxilio de transporte ni aportes de seguridad social de ley.
+            </div>
+
+            <!-- Firmas -->
+            <div class="grid grid-cols-2 gap-8 pt-10 text-center text-xs">
+              <div>
+                <div class="border-t border-slate-400 pt-1.5 font-semibold text-slate-800">Firma Administrador / Empresa</div>
+                <div class="text-[10px] text-slate-500">${emp.empresa}</div>
+              </div>
+              <div>
+                <div class="border-t border-slate-400 pt-1.5 font-semibold text-slate-800">Firma del Trabajador</div>
+                <div class="text-[10px] text-slate-500">C.C. ${emp.cedula}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function downloadDesprendibleHTML() {
+      const select = document.getElementById('desprendible-emp-select');
+      const empId = select.value;
+      if (!empId) {
+        showToast('Selecciona un empleado para exportar', 'warning');
+        return;
+      }
+      const emp = state.employees.find(e => e.id === empId);
+      const content = document.getElementById('desprendible-content').innerHTML;
+
+      const htmlDocument = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <title>Desprendible_${emp.empresa}_${emp.nombre.replace(/\s+/g, '_')}</title>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+        </head>
+        <body class="bg-gray-100 p-8 font-sans">
+          <div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow">
+            ${content}
+          </div>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([htmlDocument], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Desprendible_${emp.empresa}_${emp.cedula}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Desprendible HTML descargado con éxito', 'success');
+    }
+
+    /* ---------------------------------------------------------
+     * GESTIÓN DE EMPLEADOS (CREAR / EDITAR / ELIMINAR)
+     * --------------------------------------------------------- */
+    function openEmployeeModal() {
+      document.getElementById('form-employee').reset();
+      document.getElementById('emp-id').value = '';
+      if (currentCompanyFilter !== 'TODAS') {
+        document.getElementById('emp-empresa').value = currentCompanyFilter;
+      }
+      document.getElementById('emp-fecha-inicio').value = new Date().toISOString().split('T')[0];
+      document.getElementById('modal-employee').classList.remove('hidden');
+    }
+
+    function closeEmployeeModal() {
+      document.getElementById('modal-employee').classList.add('hidden');
+    }
+
+    function handleSaveEmployee(e) {
+      e.preventDefault();
+      const id = document.getElementById('emp-id').value || 'emp-' + Date.now();
+      const empresa = document.getElementById('emp-empresa').value;
+      const nombre = document.getElementById('emp-nombre').value.trim();
+      const cedula = document.getElementById('emp-cedula').value.trim();
+      const cargo = document.getElementById('emp-cargo').value.trim();
+      const salario = parseFloat(document.getElementById('emp-salario').value);
+      const periodo = document.getElementById('emp-periodo').value;
+      const fechaInicio = document.getElementById('emp-fecha-inicio').value;
+
+      const newEmp = {
+        id,
+        empresa,
+        nombre,
+        cedula,
+        cargo,
+        salario,
+        periodo,
+        fechaInicio,
+        activo: true
+      };
+
+      const existingIndex = state.employees.findIndex(emp => emp.id === id);
+      if (existingIndex >= 0) {
+        state.employees[existingIndex] = newEmp;
+        showToast('Empleado actualizado exitosamente', 'success');
+      } else {
+        state.employees.push(newEmp);
+        showToast('Trabajador registrado en ' + empresa, 'success');
+      }
+
+      saveState();
+      closeEmployeeModal();
+      renderAll();
+    }
+
+    function deleteEmployee(empId) {
+      const emp = state.employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      // Usar cuadro modal o confirmación directa no bloqueante
+      const confirmDelete = window.confirm(`¿Estás seguro de eliminar a ${emp.nombre} de ${emp.empresa}? También se eliminarán sus movimientos.`);
+      if (!confirmDelete) return;
+
+      state.employees = state.employees.filter(e => e.id !== empId);
+      state.movements = state.movements.filter(m => m.empleadoId !== empId);
+
+      saveState();
+      renderAll();
+      showToast('Registro de trabajador eliminado', 'info');
+    }
+
+    /* ---------------------------------------------------------
+     * GESTIÓN DE MOVIMIENTOS Y NOVEDADES
+     * --------------------------------------------------------- */
+    function updateMovementEmployeeSelect() {
+      const select = document.getElementById('mov-empleado-id');
+      select.innerHTML = '';
+
+      if (state.employees.length === 0) {
+        select.innerHTML = '<option value="">Registra primero un empleado</option>';
+        return;
+      }
+
+      state.employees.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = `${emp.nombre} [${emp.empresa}]`;
+        select.appendChild(opt);
+      });
+    }
+
+    function openMovementModal() {
+      document.getElementById('form-movement').reset();
+      document.getElementById('mov-fecha').value = new Date().toISOString().split('T')[0];
+      updateMovementEmployeeSelect();
+      document.getElementById('modal-movement').classList.remove('hidden');
+    }
+
+    function openMovementModalForEmp(empId) {
+      openMovementModal();
+      document.getElementById('mov-empleado-id').value = empId;
+    }
+
+    function closeMovementModal() {
+      document.getElementById('modal-movement').classList.add('hidden');
+    }
+
+    function onSelectMovementEmployee(empId) {
+      // Ajuste automático si se requiere
+    }
+
+    function handleSaveMovement(e) {
+      e.preventDefault();
+      const empId = document.getElementById('mov-empleado-id').value;
+      if (!empId) {
+        showToast('Debes seleccionar un empleado', 'warning');
+        return;
+      }
+
+      const emp = state.employees.find(e => e.id === empId);
+      const tipo = document.getElementById('mov-tipo').value;
+      const monto = parseFloat(document.getElementById('mov-monto').value);
+      const fecha = document.getElementById('mov-fecha').value;
+      const detalle = document.getElementById('mov-detalle').value.trim();
+
+      const newMov = {
+        id: 'mov-' + Date.now(),
+        empleadoId: empId,
+        empresa: emp ? emp.empresa : currentCompanyFilter,
+        tipo,
+        monto,
+        fecha,
+        detalle
+      };
+
+      state.movements.push(newMov);
+      saveState();
+      closeMovementModal();
+      renderAll();
+      showToast(`Movimiento ${tipo} registrado con éxito`, 'success');
+    }
+
+    function deleteMovement(movId) {
+      const ok = window.confirm('¿Deseas eliminar este movimiento económico?');
+      if (!ok) return;
+
+      state.movements = state.movements.filter(m => m.id !== movId);
+      saveState();
+      renderAll();
+      showToast('Movimiento eliminado', 'info');
+    }
+
+    /* ---------------------------------------------------------
+     * MÓDULO DE ARQUEO DE CAJA
+     * --------------------------------------------------------- */
+    function toggleDenominaciones() {
+      const panel = document.getElementById('denominaciones-panel');
+      panel.classList.toggle('hidden');
+    }
+
+    function sumDenominations() {
+      const b100 = (parseInt(document.getElementById('billete-100').value, 10) || 0) * 100000;
+      const b50  = (parseInt(document.getElementById('billete-50').value, 10) || 0) * 50000;
+      const b20  = (parseInt(document.getElementById('billete-20').value, 10) || 0) * 20000;
+      const b10  = (parseInt(document.getElementById('billete-10').value, 10) || 0) * 10000;
+      const b5   = (parseInt(document.getElementById('billete-5').value, 10) || 0) * 5000;
+      const mon  = parseInt(document.getElementById('billete-monedas').value, 10) || 0;
+
+      const totalFisico = b100 + b50 + b20 + b10 + b5 + mon;
+      document.getElementById('arq-contado').value = totalFisico;
+      calculateArqueoDiff();
+    }
+
+    function calculateArqueoDiff() {
+      const esp = parseFloat(document.getElementById('arq-esperado').value) || 0;
+      const cont = parseFloat(document.getElementById('arq-contado').value) || 0;
+      const diff = cont - esp;
+
+      const badge = document.getElementById('arq-diff-badge');
+
+      if (diff === 0) {
+        badge.className = 'text-base font-bold font-mono mt-0.5 text-emerald-400';
+        badge.textContent = '$0 (Caja Cuadrada Exacta)';
+      } else if (diff > 0) {
+        badge.className = 'text-base font-bold font-mono mt-0.5 text-emerald-400';
+        badge.textContent = `+${formatMoney(diff)} (Sobrante en caja)`;
+      } else {
+        badge.className = 'text-base font-bold font-mono mt-0.5 text-rose-400';
+        badge.textContent = `${formatMoney(diff)} (Faltante en caja)`;
+      }
+    }
+
+    function handleSaveArqueo(e) {
+      e.preventDefault();
+      const empresa = document.getElementById('arq-empresa').value;
+      const fecha = document.getElementById('arq-fecha').value;
+      const responsable = document.getElementById('arq-responsable').value.trim();
+      const esperado = parseFloat(document.getElementById('arq-esperado').value) || 0;
+      const contado = parseFloat(document.getElementById('arq-contado').value) || 0;
+      const notas = document.getElementById('arq-notas').value.trim();
+      const diferencia = contado - esperado;
+
+      const newArqueo = {
+        id: 'arq-' + Date.now(),
+        empresa,
+        fecha,
+        responsable,
+        esperado,
+        contado,
+        diferencia,
+        notas
+      };
+
+      state.arqueos.push(newArqueo);
+      saveState();
+      renderArqueosTable();
+
+      // Reset form
+      document.getElementById('form-arqueo').reset();
+      document.getElementById('arq-fecha').value = new Date().toISOString().split('T')[0];
+      calculateArqueoDiff();
+
+      showToast(`Arqueo guardado para ${empresa}`, 'success');
+    }
+
+    function deleteArqueo(id) {
+      const ok = window.confirm('¿Deseas eliminar este registro de arqueo?');
+      if (!ok) return;
+
+      state.arqueos = state.arqueos.filter(a => a.id !== id);
+      saveState();
+      renderArqueosTable();
+      showToast('Registro de arqueo eliminado', 'info');
+    }
+
+    /* ---------------------------------------------------------
+     * RESPALDO JSON & RESTAURACIÓN
+     * --------------------------------------------------------- */
+    function downloadBackupJSON() {
+      const backupData = {
+        version: '2.4',
+        exportDate: new Date().toISOString(),
+        author: 'Sistema Integral de Gestión',
+        state: state
+      };
+
+      const jsonStr = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `RESPALDO_SISTEMA_INTEGRAL_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast('Copia de respaldo JSON descargada con éxito', 'success');
+    }
+
+    function restoreBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && parsed.state && Array.isArray(parsed.state.employees)) {
+            state = parsed.state;
+            saveState();
+            renderAll();
+            showToast('¡Respaldo restaurado exitosamente!', 'success');
+          } else if (Array.isArray(parsed.employees)) {
+            state = parsed;
+            saveState();
+            renderAll();
+            showToast('¡Respaldo restaurado exitosamente!', 'success');
+          } else {
+            showToast('El formato del archivo JSON no es compatible', 'error');
+          }
+        } catch (err) {
+          showToast('Error al procesar el archivo JSON', 'error');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function resetToDemoData() {
+      const ok = window.confirm('¿Restablecer datos originales del manual operativo? Los cambios actuales no guardados en respaldo se perderán.');
+      if (!ok) return;
+
+      state = JSON.parse(JSON.stringify(defaultData));
+      saveState();
+      renderAll();
+      showToast('Datos demo restablecidos', 'info');
+    }
+
+    /* ---------------------------------------------------------
+     * MENSAJES TOAST NOTIFICATION (Reemplazo de alert)
+     * --------------------------------------------------------- */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+
+      let bg = 'bg-slate-900 border-slate-700 text-slate-100';
+      let icon = '<i class="fa-solid fa-circle-info text-sky-400"></i>';
+
+      if (type === 'success') {
+        bg = 'bg-emerald-950/90 border-emerald-600/50 text-emerald-200';
+        icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+      } else if (type === 'warning') {
+        bg = 'bg-amber-950/90 border-amber-600/50 text-amber-200';
+        icon = '<i class="fa-solid fa-triangle-exclamation text-amber-400"></i>';
+      } else if (type === 'error') {
+        bg = 'bg-rose-950/90 border-rose-600/50 text-rose-200';
+        icon = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+      }
+
+      toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs font-medium pointer-events-auto transition-all transform translate-y-2 opacity-0 duration-200 ${bg}`;
+      toast.innerHTML = `${icon} <span>${message}</span>`;
+
+      container.appendChild(toast);
+
+      // Animación de entrada
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      // Salida
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-4');
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
+    }
+
+    /* ---------------------------------------------------------
+     * INICIALIZACIÓN
+     * --------------------------------------------------------- */
+    window.onload = function() {
+      loadState();
+
+      // Configurar fecha por defecto en los formularios
+      const todayStr = new Date().toISOString().split('T')[0];
+      const arqFecha = document.getElementById('arq-fecha');
+      if (arqFecha) arqFecha.value = todayStr;
+
+      renderAll();
+      showToast('Bienvenido a su Sistema Integral de Gestión', 'info');
+    };
+  </script>
+</body>
+</html>
